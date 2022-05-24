@@ -25,6 +25,8 @@ set completeopt=menu,menuone,noselect
 " Enable tabline
 let g:airline#extensions#tabline#enabled = 1
 
+let mapleader = ' ' " 
+
 " Theme
 colorscheme NeoSolarized
 set background=light
@@ -51,6 +53,8 @@ nnoremap <leader>n :NERDTreeFocus<CR>
 
 " Set line numbers
 set number
+set cursorline
+set colorcolumn=120
 
 " Auto close markdown window
 let g:mkdp_auto_close = 1
@@ -67,7 +71,6 @@ let NERDTreeShowHidden=1
 " Close nvim if NerdTree is the only buffer open
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 
-let mapleader = ' ' " leader as ö
 syntax on " highlight syntax
 set number " show line numbers
 set noswapfile " disable the swapfile
