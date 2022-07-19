@@ -13,7 +13,7 @@ Plug 'preservim/nerdtree'
 Plug 'scalameta/nvim-metals'
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 Plug 'sheerun/vim-polyglot'
-Plug 'neovim/nvim-lspconfig'
+" Plug 'neovim/nvim-lspconfig'
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'overcache/NeoSolarized'
 " main one
@@ -55,6 +55,12 @@ nnoremap <leader>n :NERDTreeFocus<CR>
 set number
 set cursorline
 set colorcolumn=120
+
+# Set tab spacing
+set tabstop=4
+
+# Overwrite Rg to not look at file names
+command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always --smart-case ".shellescape(<q-args>), 1, {'options': '--delimiter : --nth 4..'}, <bang>0)
 
 " Auto close markdown window
 let g:mkdp_auto_close = 1
