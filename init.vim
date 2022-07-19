@@ -66,7 +66,7 @@ command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-hea
 let g:mkdp_auto_close = 1
 
 " Open NerdTree on start up
-autocmd VimEnter * NERDTree | wincmd p
+" autocmd VimEnter * NERDTree | wincmd p
 
 " Toggle NerdTree with ctrl-n
 map <C-n> :NERDTreeToggle<CR>
@@ -262,13 +262,19 @@ nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
 nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
 " Search workspace symbols.
 nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
-" Do default action for next item.
-nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
-" Do default action for previous item.
-nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
 nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 
 " folding
 set foldmethod=indent
 set foldlevel=99
+
+" set CoC error navigation
+try
+    nmap <silent> <space>j :call CocAction('diagnosticNext')<cr>
+    nmap <silent> <space>k :call CocAction('diagnosticPrevious')<cr>
+endtry
+
+" split windows in a more intuitive way
+set splitbelow
+set splitright
