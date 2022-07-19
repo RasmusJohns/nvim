@@ -56,10 +56,10 @@ set number
 set cursorline
 set colorcolumn=120
 
-# Set tab spacing
+" Set tab spacing
 set tabstop=4
 
-# Overwrite Rg to not look at file names
+" Overwrite Rg to not look at file names
 command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always --smart-case ".shellescape(<q-args>), 1, {'options': '--delimiter : --nth 4..'}, <bang>0)
 
 " Auto close markdown window
