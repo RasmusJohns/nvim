@@ -18,8 +18,12 @@ Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'saadparwaiz1/cmp_luasnip'
 Plug 'L3MON4D3/LuaSnip'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'overcache/NeoSolarized'
+Plug 'nametake/golangci-lint-langserver'
+Plug 'kkoomen/vim-doge', { 'do': 'npm i --no-save && npm run build:binary:unix' }
 " main one
 call plug#end()
 
@@ -146,9 +150,21 @@ endfunction
 set foldmethod=indent
 set foldlevel=99
 
+"augroup remember_folds
+"  autocmd!
+"  autocmd BufWinLeave * mkview
+"  autocmd BufWinEnter * silent! loadview
+"augroup END
+
 " split windows in a more intuitive way
 set splitbelow
 set splitright
+
+" For global replace
+nnoremap rr gD:%s/<C-R>///gc<left><left><left>
+
+" For docstrings
+let g:doge_doc_standard_python = 'google'
 
 " Lua
 lua << EOF
@@ -176,6 +192,9 @@ local on_attach = function(client, bufnr)
     buf_set_keymap('n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
     buf_set_keymap('n', '<space>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
     buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+    buf_set_keymap('n', '<space>j', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+    buf_set_keymap('n', '<space>k', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+    buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
     buf_set_keymap('n', '<space>e', '<cmd>lua vim.diagnostic.show_line_diagnostics()<CR>', opts)
     buf_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
     buf_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
@@ -192,6 +211,30 @@ local servers = { "gopls", "pyright", "eslint" }
 for _, lsp in ipairs(servers) do
   nvim_lsp[lsp].setup { capabilities = capabilities, on_attach = on_attach }
 end
+
+vim.api.nvim_create_autocmd("BufWritePre", {
+	pattern = { "*.go" },
+	callback = function()
+		local params = vim.lsp.util.make_range_params(nil, "utf-16")
+		params.context = { only = { "source.organizeImports" } }
+		local result = vim.lsp.buf_request_sync(0, "textDocument/codeAction", params, 3000)
+		for _, res in pairs(result or {}) do
+			for _, r in pairs(res.result or {}) do
+				if r.edit then
+					vim.lsp.util.apply_workspace_edit(r.edit, "utf-16")
+				else
+					vim.lsp.buf.execute_command(r.command)
+				end
+			end
+		end
+	end,
+})
+vim.api.nvim_create_autocmd("BufWritePre", {
+	pattern = { "*.go" },
+	callback = function()
+		vim.lsp.buf.formatting_sync(nil, 500)
+	end,
+})
 
 -- luasnip setup
 local luasnip = require 'luasnip'
@@ -236,4 +279,6 @@ cmp.setup {
     { name = 'luasnip' },
   },
 }
+
+vim.lsp.handlers["textDocument/references"] = require("telescope.builtin").lsp_references
 EOF
