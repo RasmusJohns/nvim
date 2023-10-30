@@ -17,8 +17,12 @@ Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'saadparwaiz1/cmp_luasnip'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'tzachar/fuzzy.nvim'
+Plug 'tzachar/cmp-fuzzy-buffer'
 Plug 'L3MON4D3/LuaSnip'
 Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope-fzf-native.nvim'
 Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'overcache/NeoSolarized'
@@ -67,7 +71,7 @@ set colorcolumn=120
 set tabstop=4
 
 " Overwrite Rg to not look at file names
-command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always --smart-case ".shellescape(<q-args>), 1, {'options': '--delimiter : --nth 4..'}, <bang>0)
+command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --glob '!*.json' --no-heading --color=always --smart-case ".shellescape(<q-args>), 1, {'options': '--delimiter : --nth 4..'}, <bang>0)
 
 " Auto close markdown window
 let g:mkdp_auto_close = 1
@@ -169,6 +173,12 @@ let g:doge_doc_standard_python = 'google'
 " Lua
 lua << EOF
 local nvim_lsp = require('lspconfig')
+vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(
+            vim.lsp.handlers.signature_help, {
+                border = 'rounded',
+                close_events = {"CursorMoved", "BufHidden", "InsertCharPre"},
+    }
+)
 local on_attach = function(client, bufnr)
     local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
     local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
@@ -185,6 +195,7 @@ local on_attach = function(client, bufnr)
     buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
     buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
     buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+    buf_set_keymap('i', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
     buf_set_keymap('n', '<space>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
     buf_set_keymap('n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
     buf_set_keymap('n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
@@ -279,6 +290,8 @@ cmp.setup {
     { name = 'luasnip' },
   },
 }
+
+
 
 vim.lsp.handlers["textDocument/references"] = require("telescope.builtin").lsp_references
 EOF
