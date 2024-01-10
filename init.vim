@@ -71,7 +71,7 @@ set colorcolumn=120
 set tabstop=4
 
 " Overwrite Rg to not look at file names
-command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --glob '!*.json' --no-heading --color=always --smart-case ".shellescape(<q-args>), 1, {'options': '--delimiter : --nth 4..'}, <bang>0)
+command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --glob '!*.json' --no-heading --color=always --smart-case ".shellescape(<q-args>), 1, fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}), <bang>0)
 
 " Auto close markdown window
 let g:mkdp_auto_close = 1
